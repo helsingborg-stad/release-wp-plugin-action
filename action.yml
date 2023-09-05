@@ -9,6 +9,10 @@ inputs:
     description: Node Version
     default: 16.13.2
     required: false
+  build-command:
+    description: Build command
+    default: ''
+    required: false
 
 runs:
   using: composite
@@ -51,6 +55,10 @@ runs:
         git add .
         git commit -m "build: update package file versions to ${{ steps.gitversion.outputs.semVer }}"
         git push
+      shell: bash
+
+    - name: Build
+      run: ${{ inputs.build-command }}
       shell: bash
     
     - uses: ncipollo/release-action@v1
