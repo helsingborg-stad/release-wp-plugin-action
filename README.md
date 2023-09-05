@@ -56,7 +56,7 @@ jobs:
         fetch-depth: 0
 
     - name: Create Release and bump version files
-      uses: helsingborg-stad/release-wp-plugin-action@v1
+      uses: helsingborg-stad/release-wp-plugin-action@1.0
       with:
         php-version: 8.2
         node-version: 20.6.0
