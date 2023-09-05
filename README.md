@@ -56,7 +56,12 @@ jobs:
         fetch-depth: 0
 
     - name: Create Release and bump version files
-      uses: helsingborg-stad/municipio-deploy/release-wp-plugin@master/release-action
+      uses: helsingborg-stad/release-wp-plugin-action@v1
+      with:
+        php-version: 8.2
+        node-version: 20.6.0
   ```
+- Note that the action is using the `actions/checkout@v2` action to checkout the repository. This means that you need to make sure that the branch you want to deploy is checked out.
+- Make sure to update the `php-version` and `node-version` to match the versions you want to use, or remove them to use defaults.
 - Make sure branchname is matching the branch you would want to deploy.
 - Replace secret names with macthing secrets.
