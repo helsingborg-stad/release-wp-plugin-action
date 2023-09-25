@@ -38,7 +38,7 @@ class PackageVersionManager
     {
         $packageJson            = json_decode(file_get_contents(self::PACKAGE_JSON_FILE), true);
         $packageJson['version'] = $version;
-        file_put_contents(self::PACKAGE_JSON_FILE, json_encode($packageJson, JSON_PRETTY_PRINT));
+        file_put_contents(self::PACKAGE_JSON_FILE, json_encode($packageJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         exec('npm update --package-lock-only');
         print "Updated package.json version to $this->version\n";
     }
@@ -52,7 +52,7 @@ class PackageVersionManager
     {
         $composerJson            = json_decode(file_get_contents(self::COMPOSER_JSON_FILE), true);
         $composerJson['version'] = $version;
-        file_put_contents(self::COMPOSER_JSON_FILE, json_encode($composerJson, JSON_PRETTY_PRINT));
+        file_put_contents(self::COMPOSER_JSON_FILE, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         exec('composer update --lock');
         print "Updated composer.json version to $this->version\n";
     }
