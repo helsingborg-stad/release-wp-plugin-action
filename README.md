@@ -65,3 +65,17 @@ jobs:
 - Make sure to update the `php-version` and `node-version` to match the versions you want to use, or remove them to use defaults.
 - Make sure branchname is matching the branch you would want to deploy.
 - Replace secret names with macthing secrets.
+
+## Quick implementation (Automated)
+- Go to the repository you want to implement version control in.
+- Ensure that the working tree is empty before you begin. Otherwise, changes you may not want to push out will be published.
+- Make sure the current default branch is active.
+- Run the following command:
+
+```bash
+git pull && (git checkout main 2>/dev/null || git checkout -b main) && curl https://raw.githubusercontent.com/helsingborg-stad/release-wp-plugin-action/main/release.patch | git apply && git add GitVersion.yml && git add -f ./.github/workflows/release.yml && git commit -m 'feat!: Add automatic releases' && git push origin main
+```
+
+- Change the default branch on the repository to "main." on github.com
+- Update you composer json (consumer repository) with the newly created release.
+
