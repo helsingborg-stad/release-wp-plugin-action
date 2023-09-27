@@ -52,6 +52,9 @@ class PackageVersionManager
     {
         $composerJson            = json_decode(file_get_contents(self::COMPOSER_JSON_FILE), true);
         $composerJson['version'] = $version;
+        if(isset($composerJson['require'])) {
+            $composerJson['require'] = (object) $composerJson['require'];
+        }
         file_put_contents(self::COMPOSER_JSON_FILE, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         exec('composer update --lock');
         print "Updated composer.json version to $this->version\n";
