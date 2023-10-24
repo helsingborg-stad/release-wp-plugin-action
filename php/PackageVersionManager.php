@@ -56,7 +56,7 @@ class PackageVersionManager
             $composerJson['require'] = (object) $composerJson['require'];
         }
         file_put_contents(self::COMPOSER_JSON_FILE, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        exec('composer update --lock');
+        exec('composer update --lock --no-install');
         print "Updated composer.json version to $this->version\n";
     }
 
