@@ -9,8 +9,6 @@ inputs:
     description: Node Version
     default: 16.13.2
     required: false
-outputs:
-  new-version: ${{ steps.gitversion.outputs.semVer }}
 
 runs:
   using: composite
