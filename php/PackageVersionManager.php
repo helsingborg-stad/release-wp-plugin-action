@@ -50,14 +50,21 @@ class PackageVersionManager
 
     private function updateComposerJsonVersion(string $version)
     {
-        $composerJson            = json_decode(file_get_contents(self::COMPOSER_JSON_FILE), true);
-        $composerJson['version'] = $version;
+        $composerJson = json_decode(file_get_contents(self::COMPOSER_JSON_FILE), true);
+
+        if(!isset($composerJson['version'])) {
+            return;
+        }
+
+        unset($composerJson['version']);
+
         if(isset($composerJson['require'])) {
             $composerJson['require'] = (object) $composerJson['require'];
         }
+
         file_put_contents(self::COMPOSER_JSON_FILE, json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         exec('composer update --lock --no-install');
-        print "Updated composer.json version to $this->version\n";
+        print "Removed composer.json version.\n";
     }
 
     private function getWordPressPluginFile(): ?string
