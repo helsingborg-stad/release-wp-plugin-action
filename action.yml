@@ -9,6 +9,10 @@ inputs:
     description: Node Version
     default: 16.13.2
     required: false
+  skip-release:
+    description: Skip creating a GitHub release
+    default: false
+    required: false
 
 runs:
   using: composite
@@ -54,6 +58,7 @@ runs:
       shell: bash
     
     - uses: ncipollo/release-action@v1
+      if: ${{ inputs.skip-release == 'false' }}
       with:
         generateReleaseNotes: true
         tag: ${{ steps.gitversion.outputs.semVer }}
