@@ -1,14 +1,17 @@
 name: Release WP Plugin
-description: Bump version string in package files and creates a release.
+description: Bump version string in package files and create a release.
+
 inputs:
   php-version:
     description: PHP Version
     default: 7.4
     required: false
+
   node-version:
     description: Node Version
     default: 16.13.2
     required: false
+
   skip-release:
     description: Skip creating a GitHub release
     default: false
@@ -17,12 +20,11 @@ inputs:
 runs:
   using: composite
   steps:
-
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Setup PHP with composer v2.
+    - name: Setup PHP with composer v2
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ inputs.php-version }}
@@ -31,32 +33,54 @@ runs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: '5.x'
+        versionSpec: "5.x"
+
+    - name: Sync branch
+      run: |
+        BRANCH="${GITHUB_REF_NAME:-main}"
+
+        git fetch origin "$BRANCH"
+        git rebase "origin/$BRANCH"
+      shell: bash
 
     - name: Determine Version
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0
       with:
         useConfigFile: true
-    
+
     - name: Update package file versions
       run: |
         php -r '
           include "${{ github.action_path }}/php/PackageVersionManager.php";
-          $packageVersionManager = new PackageVersionManager("${{ steps.gitversion.outputs.semVer }}");
-          $packageVersionManager->updatePackageFiles(); 
+
+          $packageVersionManager = new PackageVersionManager(
+              "${{ steps.gitversion.outputs.semVer }}"
+          );
+
+          $packageVersionManager->updatePackageFiles();
         '
       shell: bash
-    
+
     - name: Commit package file versions
       run: |
-        git config --local user.email ""
+        BRANCH="${GITHUB_REF_NAME:-main}"
+
+        git config --local user.email "ci@github.com"
         git config --local user.name "GitHub Action"
         git add .
-        git commit -m "build: update package file versions to ${{ steps.gitversion.outputs.semVer }}"
-        git push
+
+        if git diff --cached --quiet; then
+          echo "No package version changes detected."
+          exit 0
+        fi
+
+        git commit \
+          -m "build: update package file versions to ${{ steps.gitversion.outputs.semVer }}"
+
+        git push origin "HEAD:$BRANCH"
       shell: bash
-    
+
     - uses: ncipollo/release-action@v1
       if: ${{ inputs.skip-release == 'false' }}
       with:
