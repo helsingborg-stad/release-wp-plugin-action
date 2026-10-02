@@ -17,6 +17,10 @@ inputs:
     default: false
     required: false
 
+  tag-branch:
+    description: The branch that tags are created from. Can be supplied if different from the default branch. Will improve accuracy of the tag calculation process.
+    required: false
+
 runs:
   using: composite
   steps:
@@ -43,11 +47,34 @@ runs:
         git rebase "origin/$BRANCH"
       shell: bash
 
+    - name: Prepare tag branch worktree
+      id: tag-branch
+      if: ${{ inputs.tag-branch != '' }}
+      env:
+        TAG_BRANCH: ${{ inputs.tag-branch }}
+        TAG_WORKTREE: ${{ runner.temp }}/gitversion-tag-branch
+      run: |
+        git fetch origin "$TAG_BRANCH"
+        git worktree add --detach "$TAG_WORKTREE" FETCH_HEAD
+        echo "path=$TAG_WORKTREE" >> "$GITHUB_OUTPUT"
+      shell: bash
+
     - name: Determine Version
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0
       with:
         useConfigFile: true
+        targetPath: ${{ steps.tag-branch.outputs.path }}
+
+    - name: Remove tag branch worktree
+      if: ${{ always() && inputs.tag-branch != '' }}
+      env:
+        TAG_WORKTREE: ${{ runner.temp }}/gitversion-tag-branch
+      run: |
+        if [[ -d "$TAG_WORKTREE" ]]; then
+          git worktree remove --force "$TAG_WORKTREE"
+        fi
+      shell: bash
 
     - name: Update package file versions
       run: |
